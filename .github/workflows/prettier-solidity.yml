@@ -1,0 +1,26 @@
+name: Reproduce prettier-solidity-plugin error with pnpm
+on:
+  push:
+    branches: ["bug/prettier-solidity"]
+jobs:
+  repoduce:
+    name: Reproduce the error
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        manager: [npm, yarn, pnpm]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+      - name: Install pnpm if necessary
+        if: ${{ matrix.manager }} == 'pnpm'
+        run: npm install -g pnpm
+      - name: Install dependencies
+        run: ${{ matrix.manager }} install
+      - name: Run the format script
+        run: ${{ matrix.manager }} run format
